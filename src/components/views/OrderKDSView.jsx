@@ -48,7 +48,7 @@ function KDSOrderCard({ order, bakerAction }) {
 }
 
 // --- OrderKDSView ---
-export default function OrderKDSView({ role, orders, setOrders, products, setProducts }) {
+export default function OrderKDSView({ role, orders, setOrders, products, setProducts, transactions, setTransactions }) {
     const [filter, setFilter] = useState('all');
     const [dateFilter, setDateFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
@@ -96,6 +96,39 @@ export default function OrderKDSView({ role, orders, setOrders, products, setPro
             setProducts(updatedProducts);
         }
         setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+    };
+
+    const handleCancelOrder = (order) => {
+        if (role !== ROLES.MANAGER && role !== ROLES.CASHIER) {
+            return alert('Bạn không có quyền hủy đơn');
+        }
+        
+        const reason = window.prompt("Nhập lý do hủy đơn:");
+        if (reason) {
+            // Đổi status của đơn hàng
+            setOrders(orders.map(o => o.id === order.id ? { ...o, status: 'Đã hủy' } : o));
+            
+            // Xử lý hoàn cọc
+            if (order.deposit > 0) {
+                const newTransaction = {
+                    id: 'PTC' + Math.floor(1000 + Math.random() * 9000),
+                    date: new Date().toISOString(),
+                    type: 'Chi',
+                    categoryId: 'Hoàn cọc', 
+                    amount: order.deposit,
+                    referenceId: order.id,
+                    description: reason,
+                    user: role === ROLES.MANAGER ? 'Quản Lý' : 'Thu Ngân', 
+                    isCancelled: false
+                };
+                if (setTransactions && transactions) {
+                    setTransactions([newTransaction, ...transactions]);
+                }
+                alert('Đã hủy đơn và tự động tạo phiếu chi hoàn cọc!');
+            } else {
+                alert('Đã hủy đơn thành công!');
+            }
+        }
     };
 
     const bakerAction = (order) => {
@@ -151,7 +184,7 @@ export default function OrderKDSView({ role, orders, setOrders, products, setPro
                         </thead>
                         <tbody className="text-sm">
                             {paginatedOrders.map(order => (
-                                <tr key={order.id} className="border-b border-amber-50 hover:bg-amber-50/30 transition-colors">
+                                <tr key={order.id} className={`border-b border-amber-50 hover:bg-amber-50/30 transition-colors ${order.status === 'Đã hủy' ? 'opacity-60 bg-gray-50' : ''}`}>
                                     <td className="p-4 font-bold text-amber-900">{order.id}</td>
                                     <td className="p-4"><div className="font-bold text-amber-950">{order.customer}</div><div className="text-xs text-amber-600">{order.phone}</div></td>
                                     <td className="p-4 text-amber-800 font-medium"><span className={order.urgent ? 'text-red-600 font-bold' : ''}>{order.time}</span></td>
@@ -164,6 +197,14 @@ export default function OrderKDSView({ role, orders, setOrders, products, setPro
                                     </td>
                                     <td className="p-4"><StatusBadge status={order.status} /></td>
                                     <td className="p-4 text-right">
+                                        {(order.status !== 'Đã hủy' && order.status !== 'Hoàn thành') && (
+                                            <button 
+                                                onClick={() => handleCancelOrder(order)} 
+                                                className="text-xs px-3 py-1.5 bg-red-50 text-red-600 font-bold rounded border border-red-200 shadow-sm hover:bg-red-100 mr-2 transition-colors"
+                                            >
+                                                Hủy Đơn
+                                            </button>
+                                        )}
                                         {(order.status === 'Chờ giao' || order.status === 'Chờ khách lấy') && <button onClick={() => handleStatusChange(order.id, 'Hoàn thành')} className="text-xs px-3 py-1.5 bg-green-600 text-white font-bold rounded shadow-sm hover:bg-green-700 mr-2">Giao bánh</button>}
                                         <button className="text-sm text-amber-700 hover:text-amber-900 font-bold underline">Chi tiết</button>
                                     </td>

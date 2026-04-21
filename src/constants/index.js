@@ -1,6 +1,6 @@
 import {
     LayoutDashboard, Users, ShoppingCart, FileText, Package,
-    BarChart3, Settings, CakeSlice, UserCircle
+    BarChart3, Settings, CakeSlice, UserCircle, Wallet, Truck
 } from 'lucide-react';
 
 // ==========================================
@@ -16,7 +16,9 @@ export const MODULES = [
     { id: 'inventory', label: 'Kho & Nguyên liệu', icon: Package, roles: [ROLES.MANAGER, ROLES.BAKER] },
     { id: 'products', label: 'Sản phẩm & Công thức', icon: CakeSlice, roles: [ROLES.MANAGER, ROLES.BAKER] },
     { id: 'customers', label: 'Khách hàng', icon: Users, roles: [ROLES.MANAGER, ROLES.CASHIER] },
+    { id: 'cashbook', label: 'Sổ Quỹ', icon: Wallet, roles: [ROLES.MANAGER, ROLES.CASHIER] },
     { id: 'hr', label: 'Nhân sự', icon: UserCircle, roles: [ROLES.MANAGER] },
     { id: 'reports', label: 'Báo cáo', icon: BarChart3, roles: [ROLES.MANAGER] },
+    { id: 'suppliers', label: 'Nhà Cung Cấp', icon: Truck, roles: [ROLES.MANAGER] },
     { id: 'account', label: 'Tài khoản', icon: Settings, roles: [ROLES.MANAGER, ROLES.CASHIER, ROLES.BAKER] },
 ];

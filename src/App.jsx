@@ -6,11 +6,10 @@ import { ROLES, MODULES } from './constants';
 
 // Dữ liệu mẫu
 import {
-    INITIAL_USERS,
-    MOCK_PRODUCTS,
-    INITIAL_ORDERS,
-    MOCK_INVENTORY,
-    INITIAL_CUSTOMERS,
+    MOCK_PRODUCTS, INITIAL_ORDERS, CUSTOM_OPTIONS,
+    MOCK_INVENTORY, INITIAL_CUSTOMERS, INITIAL_USERS,
+    MOCK_TRANSACTIONS, MOCK_LOAITHUCHI, MOCK_INVENTORY_HISTORY,
+    MOCK_SUPPLIERS, MOCK_INGREDIENTS, MOCK_CATEGORIES
 } from './data/mockData';
 
 // Views
@@ -24,6 +23,8 @@ import ProductRecipeView from './components/views/ProductRecipeView';
 import HRView from './components/views/HRView';
 import AccountView from './components/views/AccountView';
 import OpenShiftView from './components/views/OpenShiftView';
+import CashbookView from './components/views/CashbookView';
+import SupplierView from './components/views/SupplierView';
 
 // Modals
 import CustomCakeOrderModal from './components/modals/CustomCakeOrderModal';
@@ -39,9 +40,16 @@ export default function App() {
 
     const [currentShift, setCurrentShift] = useState(null);
     const [products, setProducts] = useState(MOCK_PRODUCTS);
+    const [categories, setCategories] = useState(MOCK_CATEGORIES);
     const [orders, setOrders] = useState(INITIAL_ORDERS);
     const [inventory, setInventory] = useState(MOCK_INVENTORY);
+    const [ingredients, setIngredients] = useState(MOCK_INGREDIENTS);
     const [customers, setCustomers] = useState(INITIAL_CUSTOMERS);
+    const [suppliers, setSuppliers] = useState(MOCK_SUPPLIERS);
+    const [transactions, setTransactions] = useState(MOCK_TRANSACTIONS);
+    const [loaithuchi, setLoaithuchi] = useState(MOCK_LOAITHUCHI);
+    const [inventoryHistory, setInventoryHistory] = useState(MOCK_INVENTORY_HISTORY);
+
 
     const [showCustomCakeModal, setShowCustomCakeModal] = useState(false);
 
@@ -127,13 +135,15 @@ export default function App() {
                 <div className="flex-1 overflow-auto p-6 relative">
                     {activeModule === 'dashboard' && <DashboardView role={role} currentShift={currentShift} onConfirmCloseShift={() => { setCurrentShift(null); setCurrentUser(null); }} />}
                     {activeModule === 'pos' && <POSView products={products} orders={orders} setOrders={setOrders} customers={customers} setCustomers={setCustomers} onOpenCustomCake={() => setShowCustomCakeModal(true)} />}
-                    {activeModule === 'orders' && <OrderKDSView role={role} orders={orders} setOrders={setOrders} products={products} setProducts={setProducts} />}
-                    {activeModule === 'inventory' && <InventoryView inventory={inventory} setInventory={setInventory} products={products} setProducts={setProducts} currentUser={currentUser} orders={orders} setOrders={setOrders} />}
+                    {activeModule === 'orders' && <OrderKDSView role={role} orders={orders} setOrders={setOrders} products={products} setProducts={setProducts} transactions={transactions} setTransactions={setTransactions} />}
+                    {activeModule === 'inventory' && <InventoryView inventory={inventory} setInventory={setInventory} ingredients={ingredients} setIngredients={setIngredients} products={products} setProducts={setProducts} currentUser={currentUser} orders={orders} setOrders={setOrders} transactions={transactions} setTransactions={setTransactions} inventoryHistory={inventoryHistory} setInventoryHistory={setInventoryHistory} />}
                     {activeModule === 'customers' && <CustomerView customers={customers} setCustomers={setCustomers} />}
-                    {activeModule === 'products' && <ProductRecipeView products={products} setProducts={setProducts} inventory={inventory} />}
+                    {activeModule === 'products' && <ProductRecipeView products={products} setProducts={setProducts} inventory={inventory} ingredients={ingredients} categories={categories} setCategories={setCategories} />}
                     {activeModule === 'hr' && <HRView usersDb={usersDb} setUsersDb={setUsersDb} />}
                     {activeModule === 'account' && <AccountView currentUser={currentUser} setCurrentUser={setCurrentUser} usersDb={usersDb} setUsersDb={setUsersDb} />}
                     {activeModule === 'reports' && <DashboardView role={role} isReportOnly currentShift={currentShift} />}
+                    {activeModule === 'cashbook' && <CashbookView transactions={transactions} setTransactions={setTransactions} loaithuchi={loaithuchi} setLoaithuchi={setLoaithuchi} currentUser={currentUser} />}
+                    {activeModule === 'suppliers' && <SupplierView suppliers={suppliers} setSuppliers={setSuppliers} />}
                 </div>
             </main>
 
