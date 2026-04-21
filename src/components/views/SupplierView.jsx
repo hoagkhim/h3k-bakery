@@ -136,7 +136,7 @@ export default function SupplierView({ suppliers, setSuppliers }) {
                 </table>
             </div>
             
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+            <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={filteredSuppliers.length} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />
             
             {isModalOpen && (
                 <SupplierModal 

@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { calculateTierAndDiscount } from '../../data/mockData';
 
-export default function POSView({ products, orders, setOrders, customers, setCustomers, onOpenCustomCake }) {
+export default function POSView({ products, setProducts, orders, setOrders, customers, setCustomers, onOpenCustomCake }) {
     const [cart, setCart] = useState([]);
     const [checkoutModal, setCheckoutModal] = useState(false);
     const [receiptModal, setReceiptModal] = useState(null);

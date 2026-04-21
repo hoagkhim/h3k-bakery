@@ -85,7 +85,7 @@ export default function HRView({ usersDb, setUsersDb }) {
                     </tbody>
                 </table>
             </div>
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+            <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={filteredUsers.length} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />
             {showModal && <HREmployeeModal user={editingUser} onClose={() => setShowModal(false)} onSave={handleSaveUser} />}
         </div>
     );

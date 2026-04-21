@@ -86,7 +86,7 @@ export default function CustomerView({ customers, setCustomers }) {
                 </table>
             </div>
 
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+            <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={filteredCustomers.length} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />
 
             {showModal && (
                 <CustomerEditModal customer={editingCustomer} onClose={() => setShowModal(false)} onSave={handleSaveCustomer} />

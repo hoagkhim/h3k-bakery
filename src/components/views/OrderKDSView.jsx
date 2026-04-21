@@ -215,7 +215,7 @@ export default function OrderKDSView({ role, orders, setOrders, products, setPro
                     </table>
                 </div>
             )}
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+            <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={filteredOrders.length} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />
         </div>
     );
 }

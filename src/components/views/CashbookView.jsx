@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Plus, TrendingUp, TrendingDown, Wallet, X, Search } from 'lucide-react';
+import { Plus, TrendingUp, TrendingDown, Wallet, X, Search, BarChart3 } from 'lucide-react';
 import TransactionModal from '../modals/TransactionModal';
 import CategoryModal from '../modals/CategoryModal';
+import Pagination from '../common/Pagination';
 import { ROLES } from '../../constants';
 
 const CashbookView = ({ transactions, setTransactions, loaithuchi, setLoaithuchi, currentUser }) => {
-    const [activeTab, setActiveTab] = useState('history'); // 'history' | 'categories'
+    const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'history' | 'categories'
     const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
     
     // Category Modal states
@@ -15,6 +16,11 @@ const CashbookView = ({ transactions, setTransactions, loaithuchi, setLoaithuchi
     // Filter & Search states cho Lịch sử giao dịch
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState('all'); // 'all' | 'Thu' | 'Chi'
+    const [currentPage, setCurrentPage] = useState(1);
+    const [categoryPage, setCategoryPage] = useState(1);
+    const itemsPerPage = 6;
+
+    React.useEffect(() => { setCurrentPage(1); }, [searchQuery, filterType]);
 
     // Calculate KPIs (Tính toán dựa trên toàn bộ transactions TRỪ những phiếu đã hủy)
     const kpi = transactions.filter(t => !t.isCancelled).reduce((acc, curr) => {
@@ -41,6 +47,12 @@ const CashbookView = ({ transactions, setTransactions, loaithuchi, setLoaithuchi
         const category = loaithuchi.find(c => c.id === categoryId);
         return category ? category.name : 'Không rõ';
     };
+
+    const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+    const paginatedTransactions = filteredTransactions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    const totalCategoryPages = Math.ceil(loaithuchi.length / itemsPerPage);
+    const paginatedCategories = loaithuchi.slice((categoryPage - 1) * itemsPerPage, categoryPage * itemsPerPage);
 
     // Format currency
     const formatCurrency = (amount) => {
@@ -94,43 +106,16 @@ const CashbookView = ({ transactions, setTransactions, loaithuchi, setLoaithuchi
                 </button>
             </div>
 
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center justify-between">
-                    <div>
-                        <p className="text-gray-500 text-sm font-medium mb-1">Tổng Thu (Hệ thống)</p>
-                        <p className="text-2xl font-bold text-green-600">{formatCurrency(kpi.tongThu)}</p>
-                    </div>
-                    <div className="bg-green-100 p-3 rounded-full">
-                        <TrendingUp className="text-green-600" size={24} />
-                    </div>
-                </div>
-                
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center justify-between">
-                    <div>
-                        <p className="text-gray-500 text-sm font-medium mb-1">Tổng Chi (Hệ thống)</p>
-                        <p className="text-2xl font-bold text-red-600">{formatCurrency(kpi.tongChi)}</p>
-                    </div>
-                    <div className="bg-red-100 p-3 rounded-full">
-                        <TrendingDown className="text-red-600" size={24} />
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center justify-between">
-                    <div>
-                        <p className="text-gray-500 text-sm font-medium mb-1">Tồn Quỹ Hiện Tại</p>
-                        <p className="text-2xl font-bold text-blue-600">{formatCurrency(tonQuy)}</p>
-                    </div>
-                    <div className="bg-blue-100 p-3 rounded-full">
-                        <Wallet className="text-blue-600" size={24} />
-                    </div>
-                </div>
-            </div>
-
             {/* Main Content Area */}
             <div className="bg-white border border-gray-100 rounded-xl shadow-sm flex-1 overflow-hidden flex flex-col">
                 <div className="border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                     <div className="flex">
+                        <button 
+                            className={`py-3 px-6 font-bold text-sm transition-colors border-b-2 ${activeTab === 'overview' ? 'border-blue-600 text-blue-700 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`}
+                            onClick={() => setActiveTab('overview')}
+                        >
+                            Tổng Quan
+                        </button>
                         <button 
                             className={`py-3 px-6 font-bold text-sm transition-colors border-b-2 ${activeTab === 'history' ? 'border-blue-600 text-blue-700 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`}
                             onClick={() => setActiveTab('history')}
@@ -159,7 +144,92 @@ const CashbookView = ({ transactions, setTransactions, loaithuchi, setLoaithuchi
                 </div>
                 
                 <div className="flex-1 overflow-auto flex flex-col">
-                    {activeTab === 'history' ? (
+                    {activeTab === 'overview' ? (
+                        <div className="p-6 h-full overflow-y-auto bg-gray-50/50">
+                            {/* KPI Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center justify-between">
+                                    <div>
+                                        <p className="text-gray-500 text-sm font-medium mb-1">Tổng Thu (Hệ thống)</p>
+                                        <p className="text-2xl font-bold text-green-600">{formatCurrency(kpi.tongThu)}</p>
+                                    </div>
+                                    <div className="bg-green-100 p-3 rounded-full">
+                                        <TrendingUp className="text-green-600" size={24} />
+                                    </div>
+                                </div>
+                                
+                                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center justify-between">
+                                    <div>
+                                        <p className="text-gray-500 text-sm font-medium mb-1">Tổng Chi (Hệ thống)</p>
+                                        <p className="text-2xl font-bold text-red-600">{formatCurrency(kpi.tongChi)}</p>
+                                    </div>
+                                    <div className="bg-red-100 p-3 rounded-full">
+                                        <TrendingDown className="text-red-600" size={24} />
+                                    </div>
+                                </div>
+
+                                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center justify-between">
+                                    <div>
+                                        <p className="text-gray-500 text-sm font-medium mb-1">Tồn Quỹ Hiện Tại</p>
+                                        <p className="text-2xl font-bold text-blue-600">{formatCurrency(tonQuy)}</p>
+                                    </div>
+                                    <div className="bg-blue-100 p-3 rounded-full">
+                                        <Wallet className="text-blue-600" size={24} />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Biểu đồ Minh hoạ */}
+                            <div className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm">
+                                <div className="flex justify-between items-center mb-8">
+                                    <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2"><BarChart3 size={20} className="text-blue-600" /> Tỷ trọng Thu / Chi (Hệ thống)</h3>
+                                </div>
+                                
+                                {kpi.tongThu === 0 && kpi.tongChi === 0 ? (
+                                    <div className="h-48 flex items-center justify-center text-gray-400 font-medium border-2 border-dashed border-gray-200 rounded-xl">
+                                        Chưa có giao dịch nào để thống kê
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col md:flex-row items-center gap-10 justify-center">
+                                        {/* CSS Progress Bar Concept */}
+                                        <div className="flex-1 w-full flex flex-col gap-6">
+                                            <div>
+                                                <div className="flex justify-between mb-2">
+                                                    <span className="font-bold text-green-700">Tỷ trọng Thu</span>
+                                                    <span className="font-bold text-green-600">{Math.round((kpi.tongThu / (kpi.tongThu + kpi.tongChi)) * 100) || 0}%</span>
+                                                </div>
+                                                <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden shadow-inner">
+                                                    <div className="bg-green-500 h-4 rounded-full transition-all duration-1000" style={{ width: `${Math.round((kpi.tongThu / (kpi.tongThu + kpi.tongChi)) * 100) || 0}%` }}></div>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <div className="flex justify-between mb-2">
+                                                    <span className="font-bold text-red-700">Tỷ trọng Chi</span>
+                                                    <span className="font-bold text-red-600">{Math.round((kpi.tongChi / (kpi.tongThu + kpi.tongChi)) * 100) || 0}%</span>
+                                                </div>
+                                                <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden shadow-inner">
+                                                    <div className="bg-red-400 h-4 rounded-full transition-all duration-1000" style={{ width: `${Math.round((kpi.tongChi / (kpi.tongThu + kpi.tongChi)) * 100) || 0}%` }}></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Simple Side-by-side Bar Chart */}
+                                        <div className="h-56 flex items-end justify-center gap-6 border-b border-gray-200 pb-2 w-64 shrink-0 relative">
+                                            <div className="flex flex-col items-center gap-2 h-full justify-end w-16 group">
+                                                <span className="text-xs font-bold text-green-600 opacity-0 group-hover:opacity-100 transition-opacity mb-2">Thu</span>
+                                                <div className="w-full bg-green-500 rounded-t-lg transition-all duration-1000 hover:opacity-80 shadow-md" style={{ height: `${Math.max(10, Math.round((kpi.tongThu / Math.max(kpi.tongThu, kpi.tongChi)) * 100))}%` }}></div>
+                                            </div>
+                                            <div className="flex flex-col items-center gap-2 h-full justify-end w-16 group">
+                                                <span className="text-xs font-bold text-red-600 opacity-0 group-hover:opacity-100 transition-opacity mb-2">Chi</span>
+                                                <div className="w-full bg-red-400 rounded-t-lg transition-all duration-1000 hover:opacity-80 shadow-md" style={{ height: `${Math.max(10, Math.round((kpi.tongChi / Math.max(kpi.tongThu, kpi.tongChi)) * 100))}%` }}></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ) : activeTab === 'history' ? (
                         <>
                             {/* Thanh công cụ Tra cứu & Lọc */}
                             <div className="p-4 border-b border-gray-100 flex gap-4 bg-white shrink-0">
@@ -199,7 +269,7 @@ const CashbookView = ({ transactions, setTransactions, loaithuchi, setLoaithuchi
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100">
-                                        {filteredTransactions.map((txn) => {
+                                        {paginatedTransactions.map((txn) => {
                                             // Kiểm tra phiếu thủ công: Không có reference/MaHD/MaPN và KHÔNG thuộc danh mục auto (Bán hàng, Nhập nguyên liệu)
                                             const catName = getCategoryName(txn.categoryId);
                                             const isManual = !txn.referenceId && !txn.reference && !txn.MaHD && !txn.MaPN && catName !== 'Bán hàng' && catName !== 'Nhập nguyên liệu';
@@ -255,52 +325,56 @@ const CashbookView = ({ transactions, setTransactions, loaithuchi, setLoaithuchi
                                     </tbody>
                                 </table>
                             </div>
+                            <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={filteredTransactions.length} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />
                         </>
                     ) : (
-                        <table className="w-full text-left text-sm whitespace-nowrap">
-                            <thead className="bg-amber-50/50 text-amber-900 sticky top-0 border-b border-amber-100">
-                                <tr>
-                                    <th className="px-6 py-4 font-bold">ID</th>
-                                    <th className="px-6 py-4 font-bold">Tên Danh Mục</th>
-                                    <th className="px-6 py-4 font-bold text-center">Phân Loại</th>
-                                    <th className="px-6 py-4 font-bold text-center">Trạng Thái</th>
-                                    <th className="px-6 py-4 font-bold text-right">Thao Tác</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {loaithuchi.map((cat) => (
-                                    <tr key={cat.id} className={`transition-colors ${cat.deletedAt ? 'bg-gray-50/50 opacity-75' : 'hover:bg-amber-50/30'}`}>
-                                        <td className="px-6 py-4 font-bold text-gray-900">{cat.id}</td>
-                                        <td className="px-6 py-4 font-medium text-gray-800">{cat.name}</td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold shadow-sm border ${cat.type === 'Thu' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
-                                                {cat.type}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            {cat.deletedAt ? (
-                                                <span className="text-red-600 font-bold text-xs bg-red-100 px-2 py-1 rounded border border-red-200">Đã khóa</span>
-                                            ) : (
-                                                <span className="text-green-600 font-bold text-xs bg-green-100 px-2 py-1 rounded border border-green-200">Đang dùng</span>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 text-right space-x-2">
-                                            <button onClick={() => handleOpenCategoryModal(cat)} className="text-blue-600 hover:text-blue-800 text-xs font-bold px-3 py-1.5 bg-blue-50 rounded shadow-sm border border-blue-100">Sửa</button>
-                                            <button onClick={() => handleToggleCategoryStatus(cat.id)} className={`text-xs font-bold px-3 py-1.5 rounded shadow-sm border ${cat.deletedAt ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'}`}>
-                                                {cat.deletedAt ? 'Mở khóa' : 'Khóa'}
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {loaithuchi.length === 0 && (
+                        <>
+                            <table className="w-full text-left text-sm whitespace-nowrap">
+                                <thead className="bg-amber-50/50 text-amber-900 sticky top-0 border-b border-amber-100">
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
-                                            Chưa có danh mục nào
-                                        </td>
+                                        <th className="px-6 py-4 font-bold">ID</th>
+                                        <th className="px-6 py-4 font-bold">Tên Danh Mục</th>
+                                        <th className="px-6 py-4 font-bold text-center">Phân Loại</th>
+                                        <th className="px-6 py-4 font-bold text-center">Trạng Thái</th>
+                                        <th className="px-6 py-4 font-bold text-right">Thao Tác</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {paginatedCategories.map((cat) => (
+                                        <tr key={cat.id} className={`transition-colors ${cat.deletedAt ? 'bg-gray-50/50 opacity-75' : 'hover:bg-amber-50/30'}`}>
+                                            <td className="px-6 py-4 font-bold text-gray-900">{cat.id}</td>
+                                            <td className="px-6 py-4 font-medium text-gray-800">{cat.name}</td>
+                                            <td className="px-6 py-4 text-center">
+                                                <span className={`px-2.5 py-1 rounded-full text-xs font-bold shadow-sm border ${cat.type === 'Thu' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+                                                    {cat.type}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                {cat.deletedAt ? (
+                                                    <span className="text-red-600 font-bold text-xs bg-red-100 px-2 py-1 rounded border border-red-200">Đã khóa</span>
+                                                ) : (
+                                                    <span className="text-green-600 font-bold text-xs bg-green-100 px-2 py-1 rounded border border-green-200">Đang dùng</span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 text-right space-x-2">
+                                                <button onClick={() => handleOpenCategoryModal(cat)} className="text-blue-600 hover:text-blue-800 text-xs font-bold px-3 py-1.5 bg-blue-50 rounded shadow-sm border border-blue-100">Sửa</button>
+                                                <button onClick={() => handleToggleCategoryStatus(cat.id)} className={`text-xs font-bold px-3 py-1.5 rounded shadow-sm border ${cat.deletedAt ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'}`}>
+                                                    {cat.deletedAt ? 'Mở khóa' : 'Khóa'}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {loaithuchi.length === 0 && (
+                                        <tr>
+                                            <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
+                                                Chưa có danh mục nào
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                            <Pagination currentPage={categoryPage} totalPages={totalCategoryPages} totalItems={loaithuchi.length} itemsPerPage={itemsPerPage} onPageChange={setCategoryPage} />
+                        </>
                     )}
                 </div>
             </div>

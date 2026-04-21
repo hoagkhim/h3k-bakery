@@ -269,6 +269,10 @@ export default function InventoryView({ inventory, setInventory, ingredients, se
     const totalHistoryPages = Math.ceil(filteredHistory.length / itemsPerPage);
     const paginatedHistory = filteredHistory.slice((historyCurrentPage - 1) * itemsPerPage, historyCurrentPage * itemsPerPage);
 
+    const filteredIngredients = (ingredients || []).filter(i => (i.name || '').toLowerCase().includes(ingredientsSearchQuery.toLowerCase()) || (i.id || '').toLowerCase().includes(ingredientsSearchQuery.toLowerCase()));
+    const totalIngredientPages = Math.ceil(filteredIngredients.length / itemsPerPage);
+    const paginatedIngredients = filteredIngredients.slice((ingredientsCurrentPage - 1) * itemsPerPage, ingredientsCurrentPage * itemsPerPage);
+
     return (
         <div className="bg-white rounded-3xl shadow-sm border border-amber-100 overflow-hidden h-full flex flex-col relative">
             <div className="border-b border-amber-100 flex justify-between items-center bg-amber-50/50 shrink-0">
@@ -326,7 +330,7 @@ export default function InventoryView({ inventory, setInventory, ingredients, se
                                 </tbody>
                             </table>
                         </div>
-                        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                        <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={filteredInventory.length} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />
                     </>
                 )}
                 {activeTab === 'history' && (
@@ -394,7 +398,7 @@ export default function InventoryView({ inventory, setInventory, ingredients, se
                                 </tbody>
                             </table>
                         </div>
-                        <Pagination currentPage={historyCurrentPage} totalPages={totalHistoryPages} onPageChange={setHistoryCurrentPage} />
+                        <Pagination currentPage={historyCurrentPage} totalPages={totalHistoryPages} totalItems={filteredHistory.length} itemsPerPage={itemsPerPage} onPageChange={setHistoryCurrentPage} />
                     </>
                 )}
                 {activeTab === 'ingredients' && (
@@ -415,8 +419,7 @@ export default function InventoryView({ inventory, setInventory, ingredients, se
                             <table className="w-full text-left border-collapse">
                                 <thead><tr className="bg-emerald-50/50 text-emerald-800 text-sm border-b border-emerald-100 sticky top-0"><th className="p-4 font-bold">ID</th><th className="p-4 font-bold">Tên Nguyên Liệu</th><th className="p-4 font-bold">Đơn Vị Tính</th><th className="p-4 font-bold">Tồn Tối Thiểu</th><th className="p-4 font-bold text-center">Trạng Thái</th><th className="p-4 font-bold text-right">Thao Tác</th></tr></thead>
                                 <tbody className="text-sm">
-                                    {(ingredients || []).filter(i => (i.name || '').toLowerCase().includes(ingredientsSearchQuery.toLowerCase()) || (i.id || '').toLowerCase().includes(ingredientsSearchQuery.toLowerCase()))
-                                        .slice((ingredientsCurrentPage - 1) * itemsPerPage, ingredientsCurrentPage * itemsPerPage).map(ing => (
+                                    {paginatedIngredients.map(ing => (
                                         <tr key={ing.id} className="border-b border-gray-50 hover:bg-emerald-50/20">
                                             <td className="p-4 font-bold text-gray-900">{ing.id}</td>
                                             <td className="p-4 text-gray-800 font-medium">{ing.name}</td>
@@ -428,11 +431,11 @@ export default function InventoryView({ inventory, setInventory, ingredients, se
                                             </td>
                                         </tr>
                                     ))}
-                                    {(!(ingredients || []).length) && <tr><td colSpan="6" className="p-8 text-center text-gray-500">Chưa có dữ liệu nguyên liệu</td></tr>}
+                                    {(!filteredIngredients.length) && <tr><td colSpan="6" className="p-8 text-center text-gray-500">Chưa có dữ liệu nguyên liệu</td></tr>}
                                 </tbody>
                             </table>
                         </div>
-                        <Pagination currentPage={ingredientsCurrentPage} totalPages={Math.ceil(((ingredients || []).filter(i => (i.name || '').toLowerCase().includes(ingredientsSearchQuery.toLowerCase()) || (i.id || '').toLowerCase().includes(ingredientsSearchQuery.toLowerCase())).length) / itemsPerPage)} onPageChange={setIngredientsCurrentPage} />
+                        <Pagination currentPage={ingredientsCurrentPage} totalPages={totalIngredientPages} totalItems={filteredIngredients.length} itemsPerPage={itemsPerPage} onPageChange={setIngredientsCurrentPage} />
                     </>
                 )}
             </div>

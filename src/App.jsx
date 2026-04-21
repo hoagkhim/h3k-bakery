@@ -134,7 +134,7 @@ export default function App() {
 
                 <div className="flex-1 overflow-auto p-6 relative">
                     {activeModule === 'dashboard' && <DashboardView role={role} currentShift={currentShift} onConfirmCloseShift={() => { setCurrentShift(null); setCurrentUser(null); }} />}
-                    {activeModule === 'pos' && <POSView products={products} orders={orders} setOrders={setOrders} customers={customers} setCustomers={setCustomers} onOpenCustomCake={() => setShowCustomCakeModal(true)} />}
+                    {activeModule === 'pos' && <POSView products={products} setProducts={setProducts} orders={orders} setOrders={setOrders} customers={customers} setCustomers={setCustomers} onOpenCustomCake={() => setShowCustomCakeModal(true)} />}
                     {activeModule === 'orders' && <OrderKDSView role={role} orders={orders} setOrders={setOrders} products={products} setProducts={setProducts} transactions={transactions} setTransactions={setTransactions} />}
                     {activeModule === 'inventory' && <InventoryView inventory={inventory} setInventory={setInventory} ingredients={ingredients} setIngredients={setIngredients} products={products} setProducts={setProducts} currentUser={currentUser} orders={orders} setOrders={setOrders} transactions={transactions} setTransactions={setTransactions} inventoryHistory={inventoryHistory} setInventoryHistory={setInventoryHistory} />}
                     {activeModule === 'customers' && <CustomerView customers={customers} setCustomers={setCustomers} />}
